@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+    mongo:
+        build: mongodb
+    php:
+        build: php7-fpm
+        volumes:
+            - ../symfony:/var/www/symfony
+            - ./logs/symfony:/var/www/symfony/app/logs
+    nginx:
+        build: nginx
+        ports:
+            - 80:80
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
