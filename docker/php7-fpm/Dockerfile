@@ -38,6 +38,17 @@ RUN curl -sS -o /tmp/icu.tar.gz -L http://download.icu-project.org/files/icu4c/5
 RUN docker-php-ext-configure intl --with-icu-dir=/usr/local && \
     docker-php-ext-install intl
 
+# install dom
+RUN apt-get update \
+    && apt-get install -y libxml2-dev \
+    && CFLAGS="-I/usr/src/php" docker-php-ext-install dom xml simplexml xmlreader \
+    # should be able to uninstall the dev now
+    && apt-get purge -y --auto-remove libxml2-dev \
+    && rm -r /var/lib/apt/lists/*
+
+# install bcmath
+RUN docker-php-ext-install bcmath
+
 RUN echo 'alias sf="php app/console"' >> ~/.bashrc
 RUN echo 'alias sf3="php bin/console"' >> ~/.bashrc
 
