@@ -1,0 +1,12 @@
+default:
+    extensions:
+        Imbo\BehatApiExtension:
+            apiClient:
+                #base_uri: http://localhost # to run behat on host machine from terminal
+                #base_uri: http://nginx # to run behat in docker from terminal
+                base_uri: http://192.168.2.248 # to run behat in docker from PhpStorm
+
+    suites:
+        api:
+            paths:    [ %paths.base%/features/api ]
+            contexts: [ ApiFeatureContext ]

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PHPSpec">
+    <settings>
+      <PhpTestFrameworkSettings />
+      <settings_by_sdk interpreter_id="ac9276dd-aeef-42b5-b6b7-81e63a92ea30" executable_path="/var/www/symfony/vendor/bin/phpspec" />
+    </settings>
+  </component>
+</project>
