@@ -128,3 +128,5 @@ You can configure PhpStorm in this way:
     1. Run/debug configurations -> PHP Web Application
     
     2. Configure server: Host: localhost, Port: 80, configure path mappings.
+    
+* If you don't know why something is not working just run `sudo chmod -R 777 var/cache var/logs`. Maybe it will help.

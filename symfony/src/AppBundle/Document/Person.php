@@ -3,6 +3,8 @@
 namespace AppBundle\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
+use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Type;
 
 /**
  * Person
@@ -38,6 +40,22 @@ class Person
      */
     protected $phone;
 
+    /**
+     * @var AddressCollection
+     * @Type("ArrayCollection<AppBundle\Document\Address>")
+     * @ODM\ReferenceMany(
+     *     collectionClass="AppBundle\Document\AddressCollection",
+     *     targetDocument="AppBundle\Document\Address",
+     *     cascade="all",
+     *     orphanRemoval=true
+     * )
+     */
+    protected $addresses;
+
+    public function __construct()
+    {
+        $this->addresses = new AddressCollection([]);
+    }
 
     public function getId()
     {
@@ -72,5 +90,15 @@ class Person
     public function setPhone($phone)
     {
         $this->phone = $phone;
+    }
+
+    public function setAddresses(AddressCollection $addresses)
+    {
+        $this->addresses = $addresses;
+    }
+
+    public function getAddresses()
+    {
+        return $this->addresses;
     }
 }

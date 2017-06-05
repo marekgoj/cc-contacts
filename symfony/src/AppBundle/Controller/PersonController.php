@@ -2,6 +2,8 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Document\Address;
+use AppBundle\Document\AddressCollection;
 use AppBundle\Document\Person;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use JMS\Serializer\Serializer;
@@ -45,18 +47,27 @@ class PersonController extends Controller
      */
     public function createAction(Request $request)
     {
-        $firstName = $request->get('firstName');
-        $lastName = $request->get('lastName');
-        $phone = $request->get('phone');
+        $content = json_decode($request->getContent(), true);
+        $firstName = isset($content['firstName']) ? $content['firstName'] : null;
+        $lastName = isset($content['lastName']) ? $content['lastName'] : null;
+        $phone = isset($content['phone']) ? $content['phone'] : null;
+        $addresses = isset($content['addresses']) ? $content['addresses'] : [];
 
-        if (empty($firstName) || empty($lastName) || empty($phone)) {
-            return new Response("null values are not allowed", Response::HTTP_NOT_ACCEPTABLE);
+        if (empty($firstName) || empty($lastName)) {
+            return new Response("person must have first and last name", Response::HTTP_NOT_ACCEPTABLE);
         }
 
         $newPerson = new Person();
         $newPerson->setFirstName($firstName);
         $newPerson->setLastName($lastName);
         $newPerson->setPhone($phone);
+
+        $newAddresses = new AddressCollection();
+        foreach($addresses as $address) {
+            $newAddress = Address::createFromArray($address);
+            $newAddresses->add($newAddress);
+        }
+        $newPerson->setAddresses($newAddresses);
 
         /** @var DocumentManager $dm */
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -76,9 +87,8 @@ class PersonController extends Controller
      */
     public function updateAction($id, Request $request)
     {
-        $firstName = $request->get('firstName');
-        $lastName = $request->get('lastName');
-        $phone = $request->get('phone');
+        $content = json_decode($request->getContent(), true);
+
         /** @var DocumentManager $dm */
         $dm = $this->get('doctrine_mongodb')->getManager();
         /** @var Person $person */
@@ -88,14 +98,22 @@ class PersonController extends Controller
             return new Response("person not found", Response::HTTP_NOT_FOUND);
         }
 
-        if (!empty($firstName)) {
-            $person->setFirstName($firstName);
+        if (isset($content['firstName'])) {
+            $person->setFirstName($content['firstName']);
         }
-        if (!empty($lastName)) {
-            $person->setLastName($lastName);
+        if (isset($content['lastName'])) {
+            $person->setLastName($content['lastName']);
         }
-        if (!empty($phone)) {
-            $person->setPhone($phone);
+        if (isset($content['phone'])) {
+            $person->setPhone($content['phone']);
+        }
+        if (isset($content['addresses'])) {
+            $newAddresses = new AddressCollection();
+            foreach($content['addresses'] as $address) {
+                $newAddress = Address::createFromArray($address);
+                $newAddresses->add($newAddress);
+            }
+            $person->setAddresses($newAddresses);
         }
 
         $dm->persist($person);
