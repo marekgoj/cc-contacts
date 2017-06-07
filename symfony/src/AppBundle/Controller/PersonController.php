@@ -4,8 +4,10 @@ namespace AppBundle\Controller;
 
 use AppBundle\Document\Address;
 use AppBundle\Document\AddressCollection;
+use AppBundle\Document\Agreement;
 use AppBundle\Document\Person;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -35,7 +37,9 @@ class PersonController extends Controller
 
         /** @var Serializer $serializer */
         $serializer = $this->get('jms_serializer');
-        return new Response($serializer->serialize($persons, 'json'), Response::HTTP_OK);
+        $context = new SerializationContext();
+        $context->setSerializeNull(true);
+        return new Response($serializer->serialize($persons, 'json', $context), Response::HTTP_OK);
     }
 
     /**
@@ -52,6 +56,7 @@ class PersonController extends Controller
         $lastName = isset($content['lastName']) ? $content['lastName'] : null;
         $phone = isset($content['phone']) ? $content['phone'] : null;
         $addresses = isset($content['addresses']) ? $content['addresses'] : [];
+        $agreement = isset($content['agreement']) ? $content['agreement'] : null;
 
         if (empty($firstName) || empty($lastName)) {
             return new Response("person must have first and last name", Response::HTTP_NOT_ACCEPTABLE);
@@ -68,6 +73,9 @@ class PersonController extends Controller
             $newAddresses->add($newAddress);
         }
         $newPerson->setAddresses($newAddresses);
+
+        $newAgreement = Agreement::createFromArray($agreement);
+        $newPerson->setAgreement($newAgreement);
 
         /** @var DocumentManager $dm */
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -104,16 +112,23 @@ class PersonController extends Controller
         if (isset($content['lastName'])) {
             $person->setLastName($content['lastName']);
         }
-        if (isset($content['phone'])) {
+        if (array_key_exists('phone', $content)) {
             $person->setPhone($content['phone']);
         }
-        if (isset($content['addresses'])) {
+        if (array_key_exists('addresses', $content)) {
             $newAddresses = new AddressCollection();
-            foreach($content['addresses'] as $address) {
-                $newAddress = Address::createFromArray($address);
-                $newAddresses->add($newAddress);
+            if (is_array($content['addresses'])) {
+                foreach($content['addresses'] as $address) {
+                    $newAddress = Address::createFromArray($address);
+                    $newAddresses->add($newAddress);
+                }
             }
             $person->setAddresses($newAddresses);
+        }
+
+        if (array_key_exists('agreement', $content)) {
+            $newAgreement = Agreement::createFromArray($content['agreement']);
+            $person->setAgreement($newAgreement);
         }
 
         $dm->persist($person);

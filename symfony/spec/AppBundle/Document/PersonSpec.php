@@ -38,4 +38,11 @@ class PersonSpec extends ObjectBehavior
         $this->setAddresses($addressColl);
         $this->getAddresses()->shouldReturn($addressColl);
     }
+
+    function it_has_agreement()
+    {
+        $agreement = (new Prophet())->prophesize('AppBundle\Document\Agreement')->reveal();
+        $this->setAgreement($agreement);
+        $this->getAgreement()->shouldReturn($agreement);
+    }
 }

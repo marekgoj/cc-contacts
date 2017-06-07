@@ -52,6 +52,16 @@ class Person
      */
     protected $addresses;
 
+    /**
+     * @var Agreement
+     * @ODM\ReferenceOne(
+     *     targetDocument="AppBundle\Document\Agreement",
+     *     cascade="all",
+     *     orphanRemoval=true
+     * )
+     */
+    protected $agreement;
+
     public function __construct()
     {
         $this->addresses = new AddressCollection([]);
@@ -100,5 +110,15 @@ class Person
     public function getAddresses()
     {
         return $this->addresses;
+    }
+
+    public function setAgreement($agreement)
+    {
+        $this->agreement = $agreement;
+    }
+
+    public function getAgreement()
+    {
+        return $this->agreement;
     }
 }

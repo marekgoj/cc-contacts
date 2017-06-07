@@ -16,7 +16,7 @@ Feature: Person
         When I request "/person" using HTTP POST
         Then the response code is 200
 
-    Scenario: Cannot create a person because without first or last name
+    Scenario: Cannot create a person without first or last name
         Given the "Content-Type" request header is "application/json"
         And the request body is:
         """
@@ -42,6 +42,22 @@ Feature: Person
               "type": "home"
             }
           ]
+        }
+        """
+        When I request "/person" using HTTP POST
+        Then the response code is 200
+
+    Scenario: Create person with agreement
+        Given the "Content-Type" request header is "application/json"
+        And the request body is:
+        """
+        {
+          "firstName": "John",
+          "lastName": "Smith",
+          "agreement": {
+            "number": "123",
+            "dateOfSigning": "2017-01-02"
+          }
         }
         """
         When I request "/person" using HTTP POST
